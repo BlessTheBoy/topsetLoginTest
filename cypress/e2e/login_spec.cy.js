@@ -4,23 +4,16 @@ NB: extra comments than usual were left in the test to show my process and some 
 
 describe("Login spec", () => {
   beforeEach(() => {
-    // cy.visit("https://topset-dev.vercel.app/login");
     cy.visit("/login");
   });
 
   it("Successfully opens the page", () => {
-    // Confirm page loads successfully
-    // cy.visit("https://topset-dev.vercel.app/login");
-
     // Confirm loaded page was indeed the login page
-    // cy.contains("h2", "Log In");
-    // cy.findByRole("heading", { name: /log in/i });
     cy.contains("h2", /log in/i);
   });
 
   it("Successful login with valid credentials", () => {
-    // cy.visit("https://topset-dev.vercel.app/login");
-
+    // Login with correct details
     cy.get("input[name='email']").type("qa.analyst@email.com");
     cy.get("input[name='password']").type("Password123!");
     cy.get("button[type='submit']").click();
@@ -29,6 +22,7 @@ describe("Login spec", () => {
   });
 
   it("Unsuccessful login with invalid details", () => {
+    // Login with incorrect emaill and password
     const invalidEmail = "blahblah@example.com";
     const invalidPassword = "password";
 
@@ -38,10 +32,14 @@ describe("Login spec", () => {
     cy.get("button[type='submit']").as("submitButton");
 
     cy.get("@submitButton").click();
-    cy.get("@submitButton").siblings("p").contains("Invalid login details");
+    cy.get("@submitButton")
+      .siblings("p")
+      .should("be.visible")
+      .contains("Invalid login details");
   });
 
   it("Unsuccessful login with invalid email", () => {
+    // Login with incorrect email
     const invalidEmail = "blahblah@example.com";
 
     cy.get("input[name='email']").type(invalidEmail);
@@ -49,10 +47,12 @@ describe("Login spec", () => {
 
     cy.get("button[type='submit']")
       .siblings("p")
+      .should("be.visible")
       .contains("Invalid login details");
   });
 
   it("Unsuccessful login with invalid password", () => {
+    // Login with incorrect password
     const invalidPassword = "password";
 
     cy.get("input[name='email']").type("qa.analyst@email.com");
@@ -61,7 +61,10 @@ describe("Login spec", () => {
     cy.get("button[type='submit']").as("submitButton");
 
     cy.get("@submitButton").click();
-    cy.get("@submitButton").siblings("p").contains("Invalid login details");
+    cy.get("@submitButton")
+      .siblings("p")
+      .should("be.visible")
+      .contains("Invalid login details");
   });
 
   it("Notifies when email field is empty", () => {
@@ -73,10 +76,13 @@ describe("Login spec", () => {
     // Unfocus email field by clicking anything else besides the submit button
     cy.get("input[name='password']").click();
 
-    cy.get("@emailField").siblings("p").contains("Email is required");
+    cy.get("@emailField")
+      .siblings("p")
+      .should("be.visible")
+      .contains("Email is required");
   });
 
-  it("Notifies when email content is not a valid email", () => {
+  it("Notifies when email content is not a valid email and error clears out when updated to a valid email", () => {
     const invalidEmail = "invalidEmail";
     cy.get("input[name='email']").as("emailField");
 
@@ -85,7 +91,14 @@ describe("Login spec", () => {
     // Unfocus email field by clicking anything else besides the submit button
     cy.get("input[name='password']").click();
 
-    cy.get("@emailField").siblings("p").contains("Must be a valid email");
+    cy.get("@emailField")
+      .siblings("p")
+      .should("be.visible")
+      .contains("Must be a valid email");
+
+    const validEmail = "emal0@gmail.com";
+    cy.get("@emailField").type(validEmail);
+    cy.get("@emailField").siblings("p").should("not.be.visible");
   });
 
   it("Notifies when password field is empty", () => {
@@ -97,7 +110,10 @@ describe("Login spec", () => {
     // Unfocus password field by clicking anything else besides the submit button
     cy.get("input[name='email']").click();
 
-    cy.get("@passwordField").siblings("p").contains("Password is required");
+    cy.get("@passwordField")
+      .siblings("p")
+      .should("be.visible")
+      .contains("Password is required");
   });
 
   it("Notifies when password is less than 8 characters", () => {
@@ -112,7 +128,13 @@ describe("Login spec", () => {
 
     cy.get("@passwordField")
       .siblings("p")
+      .should("be.visible")
       .contains("password must be at least 8 characters");
+
+    const longPassword = "longPassword";
+    cy.get("@passwordField").type(longPassword);
+
+    cy.get("@passwordField").siblings("p").should("not.be.visible");
   });
 
   // Extra tests
